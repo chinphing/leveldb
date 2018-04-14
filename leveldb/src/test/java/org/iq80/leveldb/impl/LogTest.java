@@ -154,7 +154,9 @@ public class LogTest
     public void setUp()
             throws Exception
     {
-        writer = Logs.createLogWriter(File.createTempFile("table", ".log"), 42);
+        File logfile = File.createTempFile("table", ".log");
+        System.out.println(logfile.getAbsoluteFile());
+        writer = Logs.createLogWriter(logfile, 42);
     }
 
     @AfterMethod

@@ -102,7 +102,7 @@ public abstract class TableTest
         tableTest(1, Integer.MAX_VALUE, entries);
 
         // about 3 blocks
-        tableTest(BlockHelper.estimateBlockSize(Integer.MAX_VALUE, entries) / 3, Integer.MAX_VALUE, entries);
+        tableTest(BlockHelper.estimateBlockSize(entries) / 3, Integer.MAX_VALUE, entries);
     }
 
     private void tableTest(int blockSize, int blockRestartInterval, BlockEntry... entries)

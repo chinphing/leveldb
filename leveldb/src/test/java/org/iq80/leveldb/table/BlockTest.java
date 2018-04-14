@@ -29,13 +29,6 @@ import static org.testng.Assert.assertEquals;
 
 public class BlockTest
 {
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testEmptyBuffer()
-            throws Exception
-    {
-        new Block(Slices.EMPTY_SLICE, new BytewiseComparator());
-    }
-
     @Test
     public void testEmptyBlock()
             throws Exception
@@ -115,12 +108,12 @@ public class BlockTest
             builder.add(entry);
         }
 
-        assertEquals(builder.currentSizeEstimate(), BlockHelper.estimateBlockSize(blockRestartInterval, entries));
+        assertEquals(builder.currentSizeEstimate(), BlockHelper.estimateBlockSize( entries));
         Slice blockSlice = builder.finish();
-        assertEquals(builder.currentSizeEstimate(), BlockHelper.estimateBlockSize(blockRestartInterval, entries));
+        assertEquals(builder.currentSizeEstimate(), BlockHelper.estimateBlockSize( entries));
 
         Block block = new Block(blockSlice, new BytewiseComparator());
-        assertEquals(block.size(), BlockHelper.estimateBlockSize(blockRestartInterval, entries));
+        assertEquals(block.size(), BlockHelper.estimateBlockSize( entries));
 
         BlockIterator blockIterator = block.iterator();
         BlockHelper.assertSequence(blockIterator, entries);

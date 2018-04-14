@@ -68,12 +68,10 @@ public class Block
     private final Comparator<Slice> comparator;
 
     private final Slice data;
-    private final Slice restartPositions;
 
     public Block(Slice block, Comparator<Slice> comparator)
     {
         requireNonNull(block, "block is null");
-        checkArgument(block.length() >= SIZE_OF_INT, "Block is corrupt: size must be at least %s block", SIZE_OF_INT);
         requireNonNull(comparator, "comparator is null");
 
         block = block.slice();
@@ -84,21 +82,12 @@ public class Block
         // These "restart" locations are written at the end of the file, so you can seek to key without having to read the
         // entire file sequentially.
 
-        // key restart count is the last int of the block
-        int restartCount = block.getInt(block.length() - SIZE_OF_INT);
-
-        if (restartCount > 0) {
-            // restarts are written at the end of the block
-            int restartOffset = block.length() - (1 + restartCount) * SIZE_OF_INT;
-            checkArgument(restartOffset < block.length() - SIZE_OF_INT, "Block is corrupt: restart offset count is greater than block size");
-            restartPositions = block.slice(restartOffset, restartCount * SIZE_OF_INT);
-
+        if (block.length() > 0) {
             // data starts at 0 and extends to the restart index
-            data = block.slice(0, restartOffset);
+            data = block.slice(0, block.length());
         }
         else {
             data = Slices.EMPTY_SLICE;
-            restartPositions = Slices.EMPTY_SLICE;
         }
     }
 
@@ -110,6 +99,6 @@ public class Block
     @Override
     public BlockIterator iterator()
     {
-        return new BlockIterator(data, restartPositions, comparator);
+        return new BlockIterator(data, comparator);
     }
 }

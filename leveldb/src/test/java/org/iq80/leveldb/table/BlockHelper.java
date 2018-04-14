@@ -41,15 +41,12 @@ public final class BlockHelper
     {
     }
 
-    public static int estimateBlockSize(int blockRestartInterval, List<BlockEntry> entries)
+    public static int estimateBlockSize(List<BlockEntry> entries)
     {
         if (entries.isEmpty()) {
-            return SIZE_OF_INT;
+            return 0;
         }
-        int restartCount = (int) Math.ceil(1.0 * entries.size() / blockRestartInterval);
-        return estimateEntriesSize(blockRestartInterval, entries) +
-                (restartCount * SIZE_OF_INT) +
-                SIZE_OF_INT;
+        return estimateEntriesSize(entries);
     }
 
     @SafeVarargs
@@ -127,27 +124,13 @@ public final class BlockHelper
         return slice;
     }
 
-    public static int estimateEntriesSize(int blockRestartInterval, List<BlockEntry> entries)
+    public static int estimateEntriesSize(List<BlockEntry> entries)
     {
         int size = 0;
-        Slice previousKey = null;
-        int restartBlockCount = 0;
         for (BlockEntry entry : entries) {
-            int nonSharedBytes;
-            if (restartBlockCount < blockRestartInterval) {
-                nonSharedBytes = entry.getKey().length() - BlockBuilder.calculateSharedBytes(entry.getKey(), previousKey);
-            }
-            else {
-                nonSharedBytes = entry.getKey().length();
-                restartBlockCount = 0;
-            }
-            size += nonSharedBytes +
+            size += entry.getKey().length() +
                     entry.getValue().length() +
-                    (SIZE_OF_BYTE * 3); // 3 bytes for sizes
-
-            previousKey = entry.getKey();
-            restartBlockCount++;
-
+                    (SIZE_OF_BYTE * 2); // 2 bytes for sizes
         }
         return size;
     }

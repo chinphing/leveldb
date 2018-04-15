@@ -130,24 +130,10 @@ public final class BlockHelper
     public static int estimateEntriesSize(int blockRestartInterval, List<BlockEntry> entries)
     {
         int size = 0;
-        Slice previousKey = null;
-        int restartBlockCount = 0;
         for (BlockEntry entry : entries) {
-            int nonSharedBytes;
-            if (restartBlockCount < blockRestartInterval) {
-                nonSharedBytes = entry.getKey().length() - BlockBuilder.calculateSharedBytes(entry.getKey(), previousKey);
-            }
-            else {
-                nonSharedBytes = entry.getKey().length();
-                restartBlockCount = 0;
-            }
-            size += nonSharedBytes +
+            size += entry.getKey().length() +
                     entry.getValue().length() +
-                    (SIZE_OF_BYTE * 3); // 3 bytes for sizes
-
-            previousKey = entry.getKey();
-            restartBlockCount++;
-
+                    (SIZE_OF_BYTE * 2); // 3 bytes for sizes
         }
         return size;
     }

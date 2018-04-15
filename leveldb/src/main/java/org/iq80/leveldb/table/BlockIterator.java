@@ -184,19 +184,11 @@ public class BlockIterator
         requireNonNull(data, "data is null");
 
         // read entry header
-        int sharedKeyLength = VariableLengthQuantity.readVariableLengthInt(data);
-        int nonSharedKeyLength = VariableLengthQuantity.readVariableLengthInt(data);
+        int keyLength = VariableLengthQuantity.readVariableLengthInt(data);
         int valueLength = VariableLengthQuantity.readVariableLengthInt(data);
 
         // read key
-        Slice key = Slices.allocate(sharedKeyLength + nonSharedKeyLength);
-        SliceOutput sliceOutput = key.output();
-        if (sharedKeyLength > 0) {
-            checkState(previousEntry != null, "Entry has a shared key but no previous entry was provided");
-            sliceOutput.writeBytes(previousEntry.getKey(), 0, sharedKeyLength);
-        }
-        sliceOutput.writeBytes(data, nonSharedKeyLength);
-
+        Slice key = data.readSlice(keyLength);
         // read value
         Slice value = data.readSlice(valueLength);
 

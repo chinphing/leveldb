@@ -111,25 +111,17 @@ public class BlockBuilder
 
         checkArgument(lastKey == null || comparator.compare(key, lastKey) > 0, "key must be greater than last key");
 
-        int sharedKeyBytes = 0;
-        if (restartBlockEntryCount < blockRestartInterval) {
-            sharedKeyBytes = calculateSharedBytes(key, lastKey);
-        }
-        else {
-            // restart prefix compression
+        if (restartBlockEntryCount >= blockRestartInterval) {
             restartPositions.add(block.size());
             restartBlockEntryCount = 0;
         }
 
-        int nonSharedKeyBytes = key.length() - sharedKeyBytes;
-
-        // write "<shared><non_shared><value_size>"
-        VariableLengthQuantity.writeVariableLengthInt(sharedKeyBytes, block);
-        VariableLengthQuantity.writeVariableLengthInt(nonSharedKeyBytes, block);
+        // write "<key_size><value_size>"
+        VariableLengthQuantity.writeVariableLengthInt(key.length(), block);
         VariableLengthQuantity.writeVariableLengthInt(value.length(), block);
 
         // write non-shared key bytes
-        block.writeBytes(key, sharedKeyBytes, nonSharedKeyBytes);
+        block.writeBytes(key, 0, key.length());
 
         // write value bytes
         block.writeBytes(value, 0, value.length());
